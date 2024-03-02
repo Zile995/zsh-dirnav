@@ -1,0 +1,16 @@
+#!/bin/zsh
+# Redraw prompt
+
+redraw_prompt() {
+  {
+    local f
+    echoti civis
+    for f in chpwd "${chpwd_functions[@]}" precmd "${precmd_functions[@]}"; do
+      (( ! ${+functions[$f]} )) || "$f" &>/dev/null || true
+    done
+    zle .reset-prompt
+    (( ${1:-0} )) || zle -R
+  } always {
+    echoti cnorm
+  }
+}
