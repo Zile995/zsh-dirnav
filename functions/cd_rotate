@@ -1,0 +1,12 @@
+#!/bin/zsh
+# Rotate dirs
+
+cd_rotate() {
+  () {
+    'builtin' 'emulate' -L zsh
+    while (( $#dirstack )) && ! 'builtin' pushd -q $1 &>/dev/null; do
+      'builtin' popd -q $1
+    done
+    (( $#dirstack ))
+  } "$@" && redraw_prompt 1
+}
