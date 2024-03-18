@@ -7,20 +7,39 @@ cd-forward() { cd_rotate -0; }
 cd-down() {
   setopt localoptions pipefail no_aliases 2> /dev/null
 
-  (( $+commands[fzf] )) || return 1
+  (( $+commands[fzf] )) || return
+  zmodload -F zsh/files b:zf_rm || return
+
+  # Set copy command
+  (( $+commands[wl-copy] || $+commands[xclip] )) &&
+    local copy_command='printf "%q" $PWD/{} | { wl-copy -n || xclip -r -in -sel c }'
+
+  # Set preview window for dir search
+  local dir_preview file_preview
+  (( $+commands[eza] )) &&
+    dir_preview='[[ -f {} ]] || eza -1 --group-directories-first --all --icons --color=always -- {}' ||
+    dir_preview='[[ -f {} ]] || ls -1A --color=always -- {}'
+  # Set preview window for file search
+  (( $+commands[bat] )) &&
+    file_preview='[[ -d {} ]] || bat --color=always -- {}' ||
+    file_preview='[[ -d {} ]] || cat -- {}'
+
+  # Set fzf reload commands
+  local fzf_dir_command="$FZF_ALT_C_COMMAND"
+  local fzf_file_command="$FZF_DEFAULT_COMMAND"
+  [[ -n $FZF_ALT_C_COMMAND ]] ||
+    fzf_dir_command='find . -type d \( ! -name '.git' -a ! -name '.hg' -a ! -name '.svn' -a ! -name 'node_modules' \)'
+  [[ -n $FZF_DEFAULT_COMMAND ]] ||
+    fzf_file_command='find . -type f \( ! -name '.git' -a ! -name '.hg' -a ! -name '.svn' -a ! -name 'node_modules' \)'
+
+  # Set tmp file path
+  local tmp_print="$(dirname $(mktemp -u))/zsh_dirnav"
+  [[ ! -e $tmp_print ]] || zf_rm -f -- "$tmp_print" 2>/dev/null
 
   local INITIAL_QUERY="${*:-}"
-  local fzf_command="$FZF_ALT_C_COMMAND"
+  local header_text='CTRL-D: Directories / CTRL-F: Files\nCTRL-O: Copy the path / ALT-O: XDG Open / ALT-P: Print selected'
 
-  local preview
-  (( $+commands[eza] )) &&
-    preview="eza -1 --group-directories-first --all --icons --color=always {}" ||
-    preview="ls -1A --color=always {}"
-
-  [[ -n $FZF_ALT_C_COMMAND ]] ||
-    fzf_command='find . -type d \( ! -name '.git' -a ! -name '.hg' -a ! -name '.svn' -a ! -name 'node_modules' \)'
-
-  local selected_item=$(
+  local selected_item=$( \
     : | fzf \
       --exact \
       --reverse \
@@ -28,16 +47,32 @@ cd-down() {
       --keep-right \
       --height '80%' \
       --query "$INITIAL_QUERY" \
-      --preview "$preview" \
-      --preview-window 'right:60%' \
+      --preview "$dir_preview" \
+      --prompt '󰉋  Directories ❯ ' \
       --tiebreak 'length,begin,index' \
-      --bind 'ctrl-z:ignore' \
-      --bind "start:reload($fzf_command)"
+      --header "$(echo -e $header_text)" \
+      --bind "start:reload($fzf_dir_command)" \
+      --bind "alt-p:execute-silent(echo 1 > $tmp_print)+accept" \
+      --bind "alt-o:execute-silent(xdg-open {} & disown)" \
+      --bind "ctrl-o:execute-silent($copy_command)+abort" \
+      --bind "ctrl-f:change-prompt(  Files ❯ )+reload($fzf_file_command)+change-preview($file_preview)" \
+      --bind "ctrl-d:change-prompt(󰉋  Directories ❯ )+reload($fzf_dir_command)+change-preview($dir_preview)"
   )
 
-  [[ -d $selected_item ]] && {
-    'builtin' cd -- "$selected_item" 2>/dev/null && redraw_prompt 1
-  } || redraw_prompt
+  [[ -r $tmp_print ]] && local should_print="$(<$tmp_print)"
+  if (( $should_print )); then
+    LBUFFER+="${(q)selected_item}"
+    zf_rm -f -- "$tmp_print" 2>/dev/null
+  else
+    [[ -d $selected_item ]] && {
+      'builtin' cd -- "$selected_item" 2>/dev/null
+      redraw_prompt 1
+    } && return || {
+      [[ ! -f $selected_item ]] || $EDITOR -- "$selected_item" <$TTY
+    }
+  fi
+
+  redraw_prompt
 }
 
 'builtin' zle -N cd-up
