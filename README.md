@@ -4,27 +4,32 @@
 zsh-dirnav
 </h1>
 
-A simple `Alt` + `arrow` directory navigation for zsh.
+A simple `Alt` + `arrow` directory navigation for zsh with more functionallity.
 
 This functionality is extracted from the [zsh4humans](https://github.com/romkatv/zsh4humans) project, so be sure to check it out. :blush:
 
-  <picture>
-    <source srcset="https://github.com/Zile995/zsh-dirnav/assets/32335484/28004500-fa24-4026-a56b-85a1a9e5c710">
-    <img alt="Screencast" src="https://github.com/Zile995/zsh-dirnav/assets/32335484/28004500-fa24-4026-a56b-85a1a9e5c710">
-  </picture>
+![demo](https://github.com/Zile995/zsh-dirnav/assets/32335484/28004500-fa24-4026-a56b-85a1a9e5c710)
+
+<details>
+<summary>v2 screenshot</summary>
+  
+![image](https://github.com/Zile995/zsh-dirnav/assets/32335484/643a307f-a2d4-4cd7-b271-6d9f6e421315)
+
+</details>
+  
 </div>
 
 # Installation
   - ## Manual
     ```Shell
-    git clone --depth=1 https://github.com/Zile995/zsh-dirnav.git ${ZDOTDIR:-$HOME}/zsh-dirnav
+    git clone --depth=1 -b down-v2 https://github.com/Zile995/zsh-dirnav.git ${ZDOTDIR:-$HOME}/zsh-dirnav
     echo 'source ${ZDOTDIR:-$HOME}/zsh-dirnav/zsh-dirnav.zsh' >>${ZDOTDIR:-$HOME}/.zshrc
     ```
   - ## Antidote
     Add this line to `${ZDOTDIR:-$HOME}/.zsh_plugins.txt` bundle file:
 
     ```Shell
-    Zile995/zsh-dirnav
+    Zile995/zsh-dirnav branch:down-v2
     ```
   - ## Sheldon
     Add these lines to `plugins.toml` file:
@@ -32,6 +37,7 @@ This functionality is extracted from the [zsh4humans](https://github.com/romkatv
     ```R
     [plugins.zsh-dirnav]
     github = "Zile995/zsh-dirnav"
+    branch = "down-v2"
     ```
 # Key-bindings
 `Alt` + `↑` - Move into the parent directory
@@ -48,6 +54,7 @@ This functionality is extracted from the [zsh4humans](https://github.com/romkatv
 Dependencies:
   - `fzf`
   - `eza`
+  - Any nerdfont
 
 This plugin uses the `FZF_ALT_C_COMMAND` environment variable. If it is not set, fzf will use this command:
 ```Shell
