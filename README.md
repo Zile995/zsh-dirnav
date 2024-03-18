@@ -12,11 +12,11 @@ This functionality is extracted from the [zsh4humans](https://github.com/romkatv
 
 <details>
 <summary>v2 screenshot</summary>
-  
+
 ![image](https://github.com/Zile995/zsh-dirnav/assets/32335484/643a307f-a2d4-4cd7-b271-6d9f6e421315)
 
 </details>
-  
+
 </div>
 
 # Installation
@@ -54,6 +54,9 @@ This functionality is extracted from the [zsh4humans](https://github.com/romkatv
 Dependencies:
   - `fzf`
   - `eza`
+  - `bat`
+  - `xdg-utils`
+  - `xclip` or `wl-clipboard`
   - Any nerdfont
 
 This plugin uses the `FZF_ALT_C_COMMAND` environment variable. If it is not set, fzf will use this command:
