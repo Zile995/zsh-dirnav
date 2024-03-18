@@ -48,6 +48,16 @@ This functionality is extracted from the [zsh4humans](https://github.com/romkatv
 
 `Alt` + `→` - Go to next directory
 
+`Ctrl` + `D` - Search directories
+
+`Ctrl` + `F` - Search files
+
+`Ctrl` + `O` - Copy the selected path
+
+`Alt` + `O` - XDG Open, open the selected directory in file manager or selected file in text editor
+
+`Alt` + `P` - Print the selected item 
+
 > Use `Shift` instead of `Alt` on a Mac
 
 # `Alt` + `↓` and fzf
